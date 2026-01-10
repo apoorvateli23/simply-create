@@ -19,4 +19,9 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
 );
 Input.displayName = "Input";
 
+useEffect(() => {
+  console.log("Input mounted");
+  return () => console.log("Input unmounted");
+}, []);
+
 export { Input };
