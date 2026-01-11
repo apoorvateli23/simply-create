@@ -23,6 +23,7 @@ const Create = () => {
   const [formData, setFormData] = useState<BiodataFormData>(initialFormData);
   const [selectedTemplate, setSelectedTemplate] = useState('traditional-1');
   const [selectedLanguage, setSelectedLanguage] = useState<Language>('english');
+  const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
   const [isGeneratingAboutMe, setIsGeneratingAboutMe] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
@@ -133,8 +134,10 @@ const Create = () => {
                 <TemplateSelector
                   selectedTemplate={selectedTemplate}
                   selectedLanguage={selectedLanguage}
+                  backgroundColor={backgroundColor}
                   onTemplateChange={setSelectedTemplate}
                   onLanguageChange={setSelectedLanguage}
+                  onBackgroundColorChange={setBackgroundColor}
                 />
                 <div className="mt-8 flex justify-between">
                   <Button variant="outline" size="lg" onClick={() => setCurrentStep('form')}>
@@ -181,6 +184,7 @@ const Create = () => {
                   formData={formData}
                   templateId={selectedTemplate}
                   language={selectedLanguage}
+                  backgroundColor={backgroundColor}
                 />
               </div>
             </div>
