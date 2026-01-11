@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { ArrowLeft, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -13,6 +13,12 @@ import { BiodataFormData, Language, initialFormData } from '@/types/biodata';
 import { useToast } from '@/hooks/use-toast';
 
 type Step = 'form' | 'template' | 'download';
+
+const steps: { id: Step; label: string; number: string }[] = [
+  { id: 'form', label: 'Details', number: '01' },
+  { id: 'template', label: 'Template', number: '02' },
+  { id: 'download', label: 'Download', number: '03' },
+];
 
 const Create = () => {
   const navigate = useNavigate();
@@ -28,6 +34,8 @@ const Create = () => {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
   const [downloadReady, setDownloadReady] = useState(false);
+
+  const currentStepIndex = steps.findIndex(s => s.id === currentStep);
 
   const handleFormChange = useCallback((data: Partial<BiodataFormData>) => {
     setFormData(prev => ({ ...prev, ...data }));
@@ -55,15 +63,8 @@ const Create = () => {
 
     setIsGeneratingPdf(true);
     try {
-      // A4 dimensions in pixels at 300 DPI
-      const a4WidthPx = 2480;
-      const a4HeightPx = 3508;
-      
-      // Get the element dimensions
       const element = pdfRef.current;
-      
-      // Calculate scale for high-resolution output
-      const scale = 3; // Higher scale for better quality
+      const scale = 3;
       
       const canvas = await html2canvas(element, {
         scale: scale,
@@ -74,7 +75,6 @@ const Create = () => {
         width: element.offsetWidth,
         height: element.offsetHeight,
         onclone: (clonedDoc) => {
-          // Ensure fonts are loaded in cloned document
           const clonedElement = clonedDoc.querySelector('[data-pdf-content]');
           if (clonedElement) {
             (clonedElement as HTMLElement).style.transform = 'none';
@@ -82,7 +82,6 @@ const Create = () => {
         }
       });
 
-      // Create PDF with proper dimensions
       const pdf = new jsPDF({ 
         orientation: 'portrait', 
         unit: 'mm', 
@@ -93,10 +92,8 @@ const Create = () => {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      // Use PNG for better quality (lossless)
       const imgData = canvas.toDataURL('image/png', 1.0);
       
-      // Calculate dimensions to fit A4 while maintaining aspect ratio
       const canvasAspect = canvas.width / canvas.height;
       const pdfAspect = pdfWidth / pdfHeight;
       
@@ -106,11 +103,9 @@ const Create = () => {
       let offsetY = 0;
 
       if (canvasAspect > pdfAspect) {
-        // Canvas is wider - fit to width
         imgHeight = pdfWidth / canvasAspect;
         offsetY = (pdfHeight - imgHeight) / 2;
       } else {
-        // Canvas is taller - fit to height
         imgWidth = pdfHeight * canvasAspect;
         offsetX = (pdfWidth - imgWidth) / 2;
       }
@@ -144,98 +139,156 @@ const Create = () => {
     }
   };
 
+  const goToNextStep = () => {
+    if (currentStep === 'form') setCurrentStep('template');
+    else if (currentStep === 'template') setCurrentStep('download');
+  };
+
+  const goToPrevStep = () => {
+    if (currentStep === 'download') setCurrentStep('template');
+    else if (currentStep === 'template') setCurrentStep('form');
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-secondary/20 to-background">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
-        <div className="container px-4 h-16 flex items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <button 
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
             Back
-          </Button>
-          <div className="w-20" />
+          </button>
+
+          {/* Step Indicator */}
+          <div className="hidden sm:flex items-center gap-8">
+            {steps.map((step, index) => (
+              <button
+                key={step.id}
+                onClick={() => setCurrentStep(step.id)}
+                className={`flex items-center gap-2 text-sm transition-colors ${
+                  currentStepIndex >= index 
+                    ? 'text-foreground' 
+                    : 'text-muted-foreground/50'
+                }`}
+              >
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                  currentStepIndex > index 
+                    ? 'bg-primary text-primary-foreground' 
+                    : currentStepIndex === index 
+                      ? 'border-2 border-primary text-primary'
+                      : 'border border-border text-muted-foreground'
+                }`}>
+                  {currentStepIndex > index ? <Check className="w-3 h-3" /> : step.number}
+                </span>
+                <span className="hidden md:inline">{step.label}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="w-16" />
         </div>
       </header>
 
-      {/* Main */}
-      <main className="container px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Panel */}
-          <div>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
+          {/* Left Panel - Form/Controls */}
+          <div className="lg:col-span-3">
+            <div className="mb-8">
+              <h1 className="font-display text-2xl md:text-3xl font-medium mb-2">
+                {currentStep === 'form' && 'Enter your details'}
+                {currentStep === 'template' && 'Choose a template'}
+                {currentStep === 'download' && 'Download your biodata'}
+              </h1>
+              <p className="text-muted-foreground">
+                {currentStep === 'form' && 'Fill in the information you want to include in your biodata.'}
+                {currentStep === 'template' && 'Select a design that matches your style.'}
+                {currentStep === 'download' && 'Your biodata is ready. Download and share it.'}
+              </p>
+            </div>
+
             {currentStep === 'form' && (
-              <>
-                <BiodataForm
-                  formData={formData}
-                  onChange={handleFormChange}
-                  onGenerateAboutMe={handleGenerateAboutMe}
-                  isGenerating={isGeneratingAboutMe}
-                />
-                <div className="mt-8 flex justify-end">
-                  <Button size="lg" onClick={() => setCurrentStep('template')}>
-                    Continue
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </>
+              <BiodataForm
+                formData={formData}
+                onChange={handleFormChange}
+                onGenerateAboutMe={handleGenerateAboutMe}
+                isGenerating={isGeneratingAboutMe}
+              />
             )}
 
             {currentStep === 'template' && (
-              <>
-                <TemplateSelector
-                  selectedTemplate={selectedTemplate}
-                  selectedLanguage={selectedLanguage}
-                  backgroundColor={backgroundColor}
-                  onTemplateChange={setSelectedTemplate}
-                  onLanguageChange={setSelectedLanguage}
-                  onBackgroundColorChange={setBackgroundColor}
-                />
-                <div className="mt-8 flex justify-between">
-                  <Button variant="outline" size="lg" onClick={() => setCurrentStep('form')}>
-                    <ChevronLeft className="w-4 h-4 mr-2" />
-                    Back
-                  </Button>
-                  <Button size="lg" onClick={() => setCurrentStep('download')}>
-                    Continue
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </>
+              <TemplateSelector
+                selectedTemplate={selectedTemplate}
+                selectedLanguage={selectedLanguage}
+                backgroundColor={backgroundColor}
+                onTemplateChange={setSelectedTemplate}
+                onLanguageChange={setSelectedLanguage}
+                onBackgroundColorChange={setBackgroundColor}
+              />
             )}
 
             {currentStep === 'download' && (
-              <>
-                <DownloadShare
-                  onDownload={handleGeneratePdf}
-                  isGenerating={isGeneratingPdf}
-                  downloadReady={downloadReady}
-                  pdfBlob={pdfBlob}
-                />
-                <div className="mt-8">
-                  <Button variant="outline" size="lg" onClick={() => setCurrentStep('template')}>
-                    <ChevronLeft className="w-4 h-4 mr-2" />
-                    Change Template
-                  </Button>
-                </div>
-              </>
+              <DownloadShare
+                onDownload={handleGeneratePdf}
+                isGenerating={isGeneratingPdf}
+                downloadReady={downloadReady}
+                pdfBlob={pdfBlob}
+              />
             )}
+
+            {/* Navigation */}
+            <div className="mt-10 pt-6 border-t border-border flex items-center justify-between">
+              {currentStep !== 'form' ? (
+                <Button 
+                  variant="ghost" 
+                  onClick={goToPrevStep}
+                  className="text-muted-foreground"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+              ) : (
+                <div />
+              )}
+
+              {currentStep !== 'download' && (
+                <Button 
+                  onClick={goToNextStep}
+                  className="rounded-full px-6"
+                >
+                  Continue
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              )}
+            </div>
           </div>
 
-          {/* Right Panel */}
-          <div className="sticky top-24">
-            <div className="flex items-center gap-2 mb-4">
-              <Eye className="w-5 h-5 text-primary" />
-              <h3 className="font-display text-lg font-semibold">Live Preview</h3>
-            </div>
-
-            <div className="rounded-2xl border shadow-medium bg-white overflow-hidden">
-              <div className="transform scale-[0.6] origin-top-left w-[166.67%] -mb-[40%]">
-                <BiodataPreview
-                  formData={formData}
-                  templateId={selectedTemplate}
-                  language={selectedLanguage}
-                  backgroundColor={backgroundColor}
-                />
+          {/* Right Panel - Preview */}
+          <div className="lg:col-span-2">
+            <div className="sticky top-24">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                  Preview
+                </h3>
               </div>
+
+              <div className="rounded-xl border border-border bg-card overflow-hidden shadow-soft">
+                <div className="transform scale-[0.55] origin-top-left w-[181.82%] -mb-[45%]">
+                  <BiodataPreview
+                    formData={formData}
+                    templateId={selectedTemplate}
+                    language={selectedLanguage}
+                    backgroundColor={backgroundColor}
+                  />
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                This is a scaled preview. The PDF will be full size.
+              </p>
             </div>
           </div>
         </div>
