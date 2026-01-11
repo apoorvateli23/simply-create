@@ -17,7 +17,7 @@ type Step = 'form' | 'template' | 'download';
 const Create = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const previewRef = useRef<HTMLDivElement>(null);
+  const pdfRef = useRef<HTMLDivElement>(null);
 
   const [currentStep, setCurrentStep] = useState<Step>('form');
   const [formData, setFormData] = useState<BiodataFormData>(initialFormData);
@@ -51,22 +51,71 @@ const Create = () => {
   };
 
   const handleGeneratePdf = async () => {
-    if (!previewRef.current) return;
+    if (!pdfRef.current) return;
 
     setIsGeneratingPdf(true);
     try {
-      const canvas = await html2canvas(previewRef.current, {
-        scale: 2,
-        backgroundColor: '#ffffff',
+      // A4 dimensions in pixels at 300 DPI
+      const a4WidthPx = 2480;
+      const a4HeightPx = 3508;
+      
+      // Get the element dimensions
+      const element = pdfRef.current;
+      
+      // Calculate scale for high-resolution output
+      const scale = 3; // Higher scale for better quality
+      
+      const canvas = await html2canvas(element, {
+        scale: scale,
+        backgroundColor: backgroundColor,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        width: element.offsetWidth,
+        height: element.offsetHeight,
+        onclone: (clonedDoc) => {
+          // Ensure fonts are loaded in cloned document
+          const clonedElement = clonedDoc.querySelector('[data-pdf-content]');
+          if (clonedElement) {
+            (clonedElement as HTMLElement).style.transform = 'none';
+          }
+        }
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      // Create PDF with proper dimensions
+      const pdf = new jsPDF({ 
+        orientation: 'portrait', 
+        unit: 'mm', 
+        format: 'a4',
+        compress: true
+      });
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      // Use PNG for better quality (lossless)
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      
+      // Calculate dimensions to fit A4 while maintaining aspect ratio
+      const canvasAspect = canvas.width / canvas.height;
+      const pdfAspect = pdfWidth / pdfHeight;
+      
+      let imgWidth = pdfWidth;
+      let imgHeight = pdfHeight;
+      let offsetX = 0;
+      let offsetY = 0;
+
+      if (canvasAspect > pdfAspect) {
+        // Canvas is wider - fit to width
+        imgHeight = pdfWidth / canvasAspect;
+        offsetY = (pdfHeight - imgHeight) / 2;
+      } else {
+        // Canvas is taller - fit to height
+        imgWidth = pdfHeight * canvasAspect;
+        offsetX = (pdfWidth - imgWidth) / 2;
+      }
+
+      pdf.addImage(imgData, 'PNG', offsetX, offsetY, imgWidth, imgHeight, undefined, 'FAST');
 
       const blob = pdf.output('blob');
       setPdfBlob(blob);
@@ -81,9 +130,10 @@ const Create = () => {
 
       toast({
         title: 'PDF Downloaded',
-        description: 'Your biodata has been saved.',
+        description: 'Your biodata has been saved in high quality.',
       });
-    } catch {
+    } catch (error) {
+      console.error('PDF generation error:', error);
       toast({
         title: 'PDF Generation Failed',
         description: 'Please try again.',
@@ -180,7 +230,6 @@ const Create = () => {
             <div className="rounded-2xl border shadow-medium bg-white overflow-hidden">
               <div className="transform scale-[0.6] origin-top-left w-[166.67%] -mb-[40%]">
                 <BiodataPreview
-                  ref={previewRef}
                   formData={formData}
                   templateId={selectedTemplate}
                   language={selectedLanguage}
@@ -191,6 +240,26 @@ const Create = () => {
           </div>
         </div>
       </main>
+
+      {/* Hidden full-size PDF render area */}
+      <div 
+        style={{ 
+          position: 'absolute', 
+          left: '-9999px', 
+          top: 0,
+          width: '210mm',
+          minHeight: '297mm',
+        }}
+      >
+        <BiodataPreview
+          ref={pdfRef}
+          formData={formData}
+          templateId={selectedTemplate}
+          language={selectedLanguage}
+          backgroundColor={backgroundColor}
+          forPdf={true}
+        />
+      </div>
     </div>
   );
 };
