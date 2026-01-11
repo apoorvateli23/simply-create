@@ -6,6 +6,7 @@ interface BiodataPreviewProps {
   formData: BiodataFormData;
   templateId: string;
   language: Language;
+  backgroundColor?: string;
 }
 
 const translations = {
@@ -15,7 +16,9 @@ const translations = {
     name: 'Name',
     dateOfBirth: 'Date of Birth',
     age: 'Age',
+    gender: 'Gender',
     height: 'Height',
+    complexion: 'Complexion',
     maritalStatus: 'Marital Status',
     religion: 'Religion',
     caste: 'Caste',
@@ -44,7 +47,9 @@ const translations = {
     name: 'नाम',
     dateOfBirth: 'जन्म तिथि',
     age: 'आयु',
+    gender: 'लिंग',
     height: 'ऊंचाई',
+    complexion: 'रंग',
     maritalStatus: 'वैवाहिक स्थिति',
     religion: 'धर्म',
     caste: 'जाति',
@@ -73,7 +78,9 @@ const translations = {
     name: 'नाव',
     dateOfBirth: 'जन्म तारीख',
     age: 'वय',
+    gender: 'लिंग',
     height: 'उंची',
+    complexion: 'रंग',
     maritalStatus: 'वैवाहिक स्थिती',
     religion: 'धर्म',
     caste: 'जात',
@@ -98,158 +105,394 @@ const translations = {
   },
 };
 
-const getTemplateStyles = (templateId: string) => {
-  const styles = {
-    // Traditional
+// Template configurations - clean, minimal designs
+const getTemplateConfig = (templateId: string) => {
+  const configs: Record<string, {
+    accentColor: string;
+    headerStyle: 'centered' | 'left-aligned' | 'side-photo';
+    sectionStyle: 'underlined' | 'boxed' | 'minimal' | 'accent-bg';
+    photoStyle: 'circle' | 'rounded' | 'square';
+    photoPosition: 'top-center' | 'top-right' | 'side';
+    dividerStyle: 'line' | 'dots' | 'none';
+    fontStyle: 'serif' | 'sans';
+  }> = {
+    // Traditional - Elegant with decorative elements
     'traditional-1': {
-      bg: 'bg-amber-50',
-      accent: '#D4AF37',
-      headerBg: 'bg-gradient-to-r from-amber-100 to-amber-50',
-      border: 'border-amber-200',
-      title: 'text-amber-900',
-      sectionTitle: 'text-amber-800 border-b-2 border-amber-300',
+      accentColor: '#8B4513', // Saddle brown
+      headerStyle: 'centered',
+      sectionStyle: 'underlined',
+      photoStyle: 'circle',
+      photoPosition: 'top-center',
+      dividerStyle: 'line',
+      fontStyle: 'serif',
     },
     'traditional-2': {
-      bg: 'bg-rose-50',
-      accent: '#800020',
-      headerBg: 'bg-gradient-to-r from-rose-100 to-rose-50',
-      border: 'border-rose-200',
-      title: 'text-rose-900',
-      sectionTitle: 'text-rose-800 border-b-2 border-rose-300',
+      accentColor: '#800020', // Burgundy
+      headerStyle: 'centered',
+      sectionStyle: 'accent-bg',
+      photoStyle: 'rounded',
+      photoPosition: 'top-center',
+      dividerStyle: 'line',
+      fontStyle: 'serif',
     },
     'traditional-3': {
-      bg: 'bg-emerald-50',
-      accent: '#2F5233',
-      headerBg: 'bg-gradient-to-r from-emerald-100 to-emerald-50',
-      border: 'border-emerald-200',
-      title: 'text-emerald-900',
-      sectionTitle: 'text-emerald-800 border-b-2 border-emerald-300',
+      accentColor: '#2F5233', // Forest green
+      headerStyle: 'left-aligned',
+      sectionStyle: 'boxed',
+      photoStyle: 'circle',
+      photoPosition: 'top-right',
+      dividerStyle: 'line',
+      fontStyle: 'serif',
     },
-    // Modern
+    // Modern - Clean and professional
     'modern-1': {
-      bg: 'bg-blue-50',
-      accent: '#3B82F6',
-      headerBg: 'bg-gradient-to-r from-blue-100 to-blue-50',
-      border: 'border-blue-200',
-      title: 'text-blue-900',
-      sectionTitle: 'text-blue-700 border-b border-blue-200',
+      accentColor: '#3B82F6', // Blue
+      headerStyle: 'side-photo',
+      sectionStyle: 'minimal',
+      photoStyle: 'rounded',
+      photoPosition: 'side',
+      dividerStyle: 'none',
+      fontStyle: 'sans',
     },
     'modern-2': {
-      bg: 'bg-pink-50',
-      accent: '#F472B6',
-      headerBg: 'bg-gradient-to-r from-pink-100 to-pink-50',
-      border: 'border-pink-200',
-      title: 'text-pink-900',
-      sectionTitle: 'text-pink-700 border-b border-pink-200',
+      accentColor: '#7C3AED', // Purple
+      headerStyle: 'left-aligned',
+      sectionStyle: 'underlined',
+      photoStyle: 'square',
+      photoPosition: 'top-right',
+      dividerStyle: 'line',
+      fontStyle: 'sans',
     },
     'modern-3': {
-      bg: 'bg-gray-50',
-      accent: '#6B7280',
-      headerBg: 'bg-gradient-to-r from-gray-100 to-gray-50',
-      border: 'border-gray-200',
-      title: 'text-gray-900',
-      sectionTitle: 'text-gray-700 border-b border-gray-200',
+      accentColor: '#0D9488', // Teal
+      headerStyle: 'centered',
+      sectionStyle: 'boxed',
+      photoStyle: 'circle',
+      photoPosition: 'top-center',
+      dividerStyle: 'dots',
+      fontStyle: 'sans',
     },
-    // Minimalist
+    // Minimalist - Ultra clean
     'minimalist-1': {
-      bg: 'bg-white',
-      accent: '#1F2937',
-      headerBg: 'bg-white',
-      border: 'border-gray-100',
-      title: 'text-gray-900',
-      sectionTitle: 'text-gray-800 font-light tracking-wide',
+      accentColor: '#374151', // Gray
+      headerStyle: 'centered',
+      sectionStyle: 'minimal',
+      photoStyle: 'circle',
+      photoPosition: 'top-center',
+      dividerStyle: 'none',
+      fontStyle: 'sans',
     },
     'minimalist-2': {
-      bg: 'bg-orange-50',
-      accent: '#92400E',
-      headerBg: 'bg-orange-50',
-      border: 'border-orange-100',
-      title: 'text-orange-900',
-      sectionTitle: 'text-orange-800 font-light tracking-wide',
+      accentColor: '#78716C', // Warm gray
+      headerStyle: 'left-aligned',
+      sectionStyle: 'underlined',
+      photoStyle: 'rounded',
+      photoPosition: 'top-right',
+      dividerStyle: 'line',
+      fontStyle: 'sans',
     },
     'minimalist-3': {
-      bg: 'bg-lime-50',
-      accent: '#65A30D',
-      headerBg: 'bg-lime-50',
-      border: 'border-lime-100',
-      title: 'text-lime-900',
-      sectionTitle: 'text-lime-800 font-light tracking-wide',
+      accentColor: '#1F2937', // Dark gray
+      headerStyle: 'side-photo',
+      sectionStyle: 'minimal',
+      photoStyle: 'square',
+      photoPosition: 'side',
+      dividerStyle: 'none',
+      fontStyle: 'sans',
     },
   };
 
-  return styles[templateId as keyof typeof styles] || styles['traditional-1'];
+  return configs[templateId] || configs['traditional-1'];
 };
 
 const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
-  ({ formData, templateId, language }, ref) => {
+  ({ formData, templateId, language, backgroundColor = '#FFFFFF' }, ref) => {
     const t = translations[language];
-    const styles = getTemplateStyles(templateId);
+    const config = getTemplateConfig(templateId);
+    const location = [formData.city, formData.state, formData.country].filter(Boolean).join(', ');
 
     const InfoRow = ({ label, value }: { label: string; value: string }) => {
       if (!value) return null;
       return (
-        <div className="flex py-1">
-          <span className="w-1/3 text-muted-foreground text-sm">{label}:</span>
-          <span className="w-2/3 text-sm font-medium">{value}</span>
+        <div className="flex py-1 text-sm">
+          <span className="w-2/5 text-gray-600">{label}</span>
+          <span className="w-3/5 font-medium text-gray-800">{value}</span>
         </div>
       );
     };
 
-    const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-      <h3 className={`font-display text-base font-semibold mb-3 pb-1 ${styles.sectionTitle}`}>
-        {children}
-      </h3>
-    );
+    const SectionTitle = ({ children }: { children: React.ReactNode }) => {
+      const baseClasses = "text-sm font-semibold mb-3 pb-1";
+      
+      if (config.sectionStyle === 'underlined') {
+        return (
+          <h3 
+            className={baseClasses}
+            style={{ 
+              color: config.accentColor,
+              borderBottom: `2px solid ${config.accentColor}`,
+              paddingBottom: '4px'
+            }}
+          >
+            {children}
+          </h3>
+        );
+      }
+      
+      if (config.sectionStyle === 'boxed') {
+        return (
+          <h3 
+            className={`${baseClasses} px-2 py-1 rounded`}
+            style={{ 
+              backgroundColor: `${config.accentColor}15`,
+              color: config.accentColor,
+            }}
+          >
+            {children}
+          </h3>
+        );
+      }
+      
+      if (config.sectionStyle === 'accent-bg') {
+        return (
+          <h3 
+            className={`${baseClasses} px-3 py-1.5 text-white rounded-sm`}
+            style={{ backgroundColor: config.accentColor }}
+          >
+            {children}
+          </h3>
+        );
+      }
+      
+      // minimal
+      return (
+        <h3 
+          className={`${baseClasses} uppercase tracking-wider`}
+          style={{ color: config.accentColor }}
+        >
+          {children}
+        </h3>
+      );
+    };
 
-    const location = [formData.city, formData.state, formData.country].filter(Boolean).join(', ');
+    const PhotoComponent = () => {
+      const photoClasses = {
+        circle: 'rounded-full',
+        rounded: 'rounded-xl',
+        square: 'rounded-none',
+      };
 
+      const size = config.photoPosition === 'side' ? 'w-28 h-36' : 'w-24 h-24';
+
+      return (
+        <div 
+          className={`${size} ${photoClasses[config.photoStyle]} border-2 flex-shrink-0 overflow-hidden flex items-center justify-center`}
+          style={{ 
+            borderColor: config.accentColor,
+            backgroundColor: `${config.accentColor}10`
+          }}
+        >
+          {formData.photo ? (
+            <img src={formData.photo} alt="Profile" className="w-full h-full object-cover" />
+          ) : (
+            <User className="w-10 h-10" style={{ color: config.accentColor }} />
+          )}
+        </div>
+      );
+    };
+
+    const Divider = () => {
+      if (config.dividerStyle === 'none') return null;
+      if (config.dividerStyle === 'dots') {
+        return (
+          <div className="flex justify-center gap-1 my-4">
+            {[1, 2, 3].map(i => (
+              <div 
+                key={i} 
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: config.accentColor }}
+              />
+            ))}
+          </div>
+        );
+      }
+      return (
+        <div 
+          className="my-4 h-px"
+          style={{ backgroundColor: `${config.accentColor}30` }}
+        />
+      );
+    };
+
+    // Side-photo layout (Modern style)
+    if (config.headerStyle === 'side-photo') {
+      return (
+        <div
+          ref={ref}
+          className="w-full max-w-[210mm] mx-auto shadow-lg"
+          style={{ 
+            aspectRatio: '210/297',
+            fontFamily: config.fontStyle === 'serif' ? 'Playfair Display, serif' : 'Outfit, sans-serif',
+            backgroundColor,
+          }}
+        >
+          <div className="h-full flex">
+            {/* Left sidebar with photo */}
+            <div 
+              className="w-1/3 p-6 flex flex-col items-center"
+              style={{ backgroundColor: `${config.accentColor}08` }}
+            >
+              <PhotoComponent />
+              <h2 
+                className="mt-4 text-lg font-bold text-center"
+                style={{ color: config.accentColor }}
+              >
+                {formData.fullName || 'Your Name'}
+              </h2>
+              {location && (
+                <p className="text-xs text-gray-500 text-center mt-1">{location}</p>
+              )}
+              
+              <Divider />
+              
+              {/* Contact */}
+              <div className="w-full mt-auto">
+                <SectionTitle>{t.contact}</SectionTitle>
+                <p className="text-xs text-gray-600 text-center">
+                  {formData.contactLabel || 'Contact details available on request'}
+                </p>
+              </div>
+            </div>
+            
+            {/* Right content */}
+            <div className="w-2/3 p-6 space-y-4">
+              {/* Personal Details */}
+              <div>
+                <SectionTitle>{t.personalDetails}</SectionTitle>
+                <div className="grid grid-cols-1 gap-0">
+                  <InfoRow label={t.dateOfBirth} value={formData.dateOfBirth} />
+                  <InfoRow label={t.age} value={formData.age} />
+                  <InfoRow label={t.height} value={formData.height} />
+                  <InfoRow label={t.complexion} value={formData.complexion} />
+                  <InfoRow label={t.maritalStatus} value={formData.maritalStatus} />
+                  <InfoRow label={t.religion} value={formData.religion} />
+                  <InfoRow label={t.caste} value={formData.caste} />
+                  <InfoRow label={t.motherTongue} value={formData.motherTongue} />
+                </div>
+              </div>
+              
+              {/* Education */}
+              <div>
+                <SectionTitle>{t.education}</SectionTitle>
+                <div className="grid grid-cols-1 gap-0">
+                  <InfoRow label={t.highestEducation} value={formData.education} />
+                  <InfoRow label={t.occupation} value={formData.occupation} />
+                  <InfoRow label={t.company} value={formData.companyName} />
+                  <InfoRow label={t.income} value={formData.annualIncome} />
+                </div>
+              </div>
+              
+              {/* Family */}
+              <div>
+                <SectionTitle>{t.family}</SectionTitle>
+                <div className="grid grid-cols-1 gap-0">
+                  <InfoRow label={t.fatherName} value={formData.fatherName} />
+                  <InfoRow label={t.fatherOccupation} value={formData.fatherOccupation} />
+                  <InfoRow label={t.motherName} value={formData.motherName} />
+                  <InfoRow label={t.motherOccupation} value={formData.motherOccupation} />
+                  <InfoRow label={t.siblings} value={formData.siblings} />
+                  <InfoRow label={t.familyType} value={formData.familyType} />
+                </div>
+              </div>
+              
+              {/* About Me */}
+              {formData.aboutMe && (
+                <div>
+                  <SectionTitle>{t.aboutMe}</SectionTitle>
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    {formData.aboutMe}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Centered or left-aligned layout
     return (
       <div
         ref={ref}
-        className={`w-full max-w-[210mm] mx-auto ${styles.bg} border ${styles.border} shadow-lg`}
+        className="w-full max-w-[210mm] mx-auto shadow-lg"
         style={{ 
           aspectRatio: '210/297',
-          fontFamily: templateId.startsWith('minimalist') ? 'Outfit, sans-serif' : 'inherit'
+          fontFamily: config.fontStyle === 'serif' ? 'Playfair Display, serif' : 'Outfit, sans-serif',
+          backgroundColor,
         }}
       >
         <div className="h-full p-8 flex flex-col">
           {/* Header */}
-          <div className={`${styles.headerBg} -mx-8 -mt-8 px-8 py-6 mb-6`}>
-            <div className="flex items-center gap-6">
-              {/* Photo */}
-              <div 
-                className="w-24 h-24 rounded-full border-4 flex-shrink-0 overflow-hidden flex items-center justify-center"
-                style={{ borderColor: styles.accent, backgroundColor: `${styles.accent}10` }}
-              >
-                {formData.photo ? (
-                  <img src={formData.photo} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-10 h-10" style={{ color: styles.accent }} />
-                )}
-              </div>
-              
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">{t.biodata}</p>
-                <h1 className={`font-display text-2xl font-bold ${styles.title}`}>
+          <div className={`mb-6 ${config.headerStyle === 'centered' ? 'text-center' : 'flex items-start gap-6'}`}>
+            {config.headerStyle === 'centered' ? (
+              <>
+                <div className="flex justify-center mb-4">
+                  <PhotoComponent />
+                </div>
+                <p 
+                  className="text-xs uppercase tracking-widest mb-1"
+                  style={{ color: config.accentColor }}
+                >
+                  {t.biodata}
+                </p>
+                <h1 
+                  className="text-2xl font-bold"
+                  style={{ color: config.accentColor }}
+                >
                   {formData.fullName || 'Your Name'}
                 </h1>
                 {location && (
-                  <p className="text-sm text-muted-foreground mt-1">{location}</p>
+                  <p className="text-sm text-gray-500 mt-1">{location}</p>
                 )}
-              </div>
-            </div>
+              </>
+            ) : (
+              <>
+                <div className="flex-1">
+                  <p 
+                    className="text-xs uppercase tracking-widest mb-1"
+                    style={{ color: config.accentColor }}
+                  >
+                    {t.biodata}
+                  </p>
+                  <h1 
+                    className="text-2xl font-bold"
+                    style={{ color: config.accentColor }}
+                  >
+                    {formData.fullName || 'Your Name'}
+                  </h1>
+                  {location && (
+                    <p className="text-sm text-gray-500 mt-1">{location}</p>
+                  )}
+                </div>
+                <PhotoComponent />
+              </>
+            )}
           </div>
 
-          {/* Content */}
-          <div className="flex-1 grid grid-cols-2 gap-x-8 gap-y-4 text-foreground overflow-hidden">
+          <Divider />
+
+          {/* Content - Two columns */}
+          <div className="flex-1 grid grid-cols-2 gap-x-8 gap-y-4 overflow-hidden">
             {/* Left Column */}
             <div className="space-y-4">
               {/* Personal Details */}
               <div>
                 <SectionTitle>{t.personalDetails}</SectionTitle>
-                <div className="space-y-0.5">
+                <div className="space-y-0">
                   <InfoRow label={t.dateOfBirth} value={formData.dateOfBirth} />
+                  <InfoRow label={t.age} value={formData.age} />
                   <InfoRow label={t.height} value={formData.height} />
+                  <InfoRow label={t.complexion} value={formData.complexion} />
                   <InfoRow label={t.maritalStatus} value={formData.maritalStatus} />
                   <InfoRow label={t.religion} value={formData.religion} />
                   <InfoRow label={t.caste} value={formData.caste} />
@@ -260,7 +503,7 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
               {/* Education */}
               <div>
                 <SectionTitle>{t.education}</SectionTitle>
-                <div className="space-y-0.5">
+                <div className="space-y-0">
                   <InfoRow label={t.highestEducation} value={formData.education} />
                   <InfoRow label={t.occupation} value={formData.occupation} />
                   <InfoRow label={t.company} value={formData.companyName} />
@@ -274,7 +517,7 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
               {/* Family */}
               <div>
                 <SectionTitle>{t.family}</SectionTitle>
-                <div className="space-y-0.5">
+                <div className="space-y-0">
                   <InfoRow label={t.fatherName} value={formData.fatherName} />
                   <InfoRow label={t.fatherOccupation} value={formData.fatherOccupation} />
                   <InfoRow label={t.motherName} value={formData.motherName} />
@@ -289,7 +532,7 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
                 <div>
                   <SectionTitle>{t.aboutMe}</SectionTitle>
                   {formData.aboutMe && (
-                    <p className="text-sm text-muted-foreground mb-2 line-clamp-3">
+                    <p className="text-xs text-gray-600 mb-2 leading-relaxed line-clamp-4">
                       {formData.aboutMe}
                     </p>
                   )}
@@ -303,7 +546,7 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
               {formData.partnerPreferences && (
                 <div>
                   <SectionTitle>{t.preferences}</SectionTitle>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
+                  <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">
                     {formData.partnerPreferences}
                   </p>
                 </div>
@@ -312,8 +555,8 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
           </div>
 
           {/* Footer */}
-          <div className="mt-6 pt-4 border-t" style={{ borderColor: `${styles.accent}30` }}>
-            <p className="text-sm text-center text-muted-foreground">
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <p className="text-xs text-center text-gray-500">
               {formData.contactLabel || 'Contact details available on request'}
             </p>
           </div>
