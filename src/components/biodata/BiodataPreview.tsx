@@ -7,6 +7,7 @@ interface BiodataPreviewProps {
   templateId: string;
   language: Language;
   backgroundColor?: string;
+  forPdf?: boolean;
 }
 
 const translations = {
@@ -206,34 +207,56 @@ const getTemplateConfig = (templateId: string) => {
 };
 
 const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
-  ({ formData, templateId, language, backgroundColor = '#FFFFFF' }, ref) => {
+  ({ formData, templateId, language, backgroundColor = '#FFFFFF', forPdf = false }, ref) => {
     const t = translations[language];
     const config = getTemplateConfig(templateId);
     const location = [formData.city, formData.state, formData.country].filter(Boolean).join(', ');
 
+    // PDF-optimized sizes - larger for better quality
+    const sizes = forPdf ? {
+      text: { base: '16px', sm: '14px', xs: '12px', lg: '18px', xl: '20px', '2xl': '28px' },
+      padding: { base: '32px', lg: '48px' },
+      photoSize: config.photoPosition === 'side' ? { w: '160px', h: '200px' } : { w: '128px', h: '128px' },
+      iconSize: '56px',
+    } : {
+      text: { base: '14px', sm: '12px', xs: '10px', lg: '16px', xl: '18px', '2xl': '24px' },
+      padding: { base: '24px', lg: '32px' },
+      photoSize: config.photoPosition === 'side' ? { w: '112px', h: '144px' } : { w: '96px', h: '96px' },
+      iconSize: '40px',
+    };
+
     const InfoRow = ({ label, value }: { label: string; value: string }) => {
       if (!value) return null;
       return (
-        <div className="flex py-1 text-sm">
-          <span className="w-2/5 text-gray-600">{label}</span>
-          <span className="w-3/5 font-medium text-gray-800">{value}</span>
+        <div 
+          style={{ 
+            display: 'flex', 
+            padding: forPdf ? '8px 0' : '4px 0',
+            fontSize: sizes.text.sm,
+            lineHeight: '1.5',
+          }}
+        >
+          <span style={{ width: '40%', color: '#4B5563' }}>{label}</span>
+          <span style={{ width: '60%', fontWeight: 500, color: '#1F2937' }}>{value}</span>
         </div>
       );
     };
 
     const SectionTitle = ({ children }: { children: React.ReactNode }) => {
-      const baseClasses = "text-sm font-semibold mb-3 pb-1";
+      const baseStyle: React.CSSProperties = {
+        fontSize: sizes.text.base,
+        fontWeight: 600,
+        marginBottom: forPdf ? '16px' : '12px',
+        paddingBottom: forPdf ? '8px' : '4px',
+      };
       
       if (config.sectionStyle === 'underlined') {
         return (
-          <h3 
-            className={baseClasses}
-            style={{ 
-              color: config.accentColor,
-              borderBottom: `2px solid ${config.accentColor}`,
-              paddingBottom: '4px'
-            }}
-          >
+          <h3 style={{ 
+            ...baseStyle,
+            color: config.accentColor,
+            borderBottom: `2px solid ${config.accentColor}`,
+          }}>
             {children}
           </h3>
         );
@@ -241,13 +264,13 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
       
       if (config.sectionStyle === 'boxed') {
         return (
-          <h3 
-            className={`${baseClasses} px-2 py-1 rounded`}
-            style={{ 
-              backgroundColor: `${config.accentColor}15`,
-              color: config.accentColor,
-            }}
-          >
+          <h3 style={{ 
+            ...baseStyle,
+            padding: '8px',
+            borderRadius: '4px',
+            backgroundColor: `${config.accentColor}15`,
+            color: config.accentColor,
+          }}>
             {children}
           </h3>
         );
@@ -255,10 +278,13 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
       
       if (config.sectionStyle === 'accent-bg') {
         return (
-          <h3 
-            className={`${baseClasses} px-3 py-1.5 text-white rounded-sm`}
-            style={{ backgroundColor: config.accentColor }}
-          >
+          <h3 style={{ 
+            ...baseStyle,
+            padding: '12px 16px',
+            borderRadius: '2px',
+            backgroundColor: config.accentColor,
+            color: 'white',
+          }}>
             {children}
           </h3>
         );
@@ -266,36 +292,48 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
       
       // minimal
       return (
-        <h3 
-          className={`${baseClasses} uppercase tracking-wider`}
-          style={{ color: config.accentColor }}
-        >
+        <h3 style={{ 
+          ...baseStyle,
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
+          color: config.accentColor,
+        }}>
           {children}
         </h3>
       );
     };
 
     const PhotoComponent = () => {
-      const photoClasses = {
-        circle: 'rounded-full',
-        rounded: 'rounded-xl',
-        square: 'rounded-none',
+      const borderRadius = {
+        circle: '50%',
+        rounded: '12px',
+        square: '0px',
       };
-
-      const size = config.photoPosition === 'side' ? 'w-28 h-36' : 'w-24 h-24';
 
       return (
         <div 
-          className={`${size} ${photoClasses[config.photoStyle]} border-2 flex-shrink-0 overflow-hidden flex items-center justify-center`}
           style={{ 
-            borderColor: config.accentColor,
-            backgroundColor: `${config.accentColor}10`
+            width: sizes.photoSize.w,
+            height: sizes.photoSize.h,
+            borderRadius: borderRadius[config.photoStyle],
+            border: `2px solid ${config.accentColor}`,
+            backgroundColor: `${config.accentColor}10`,
+            flexShrink: 0,
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           {formData.photo ? (
-            <img src={formData.photo} alt="Profile" className="w-full h-full object-cover" />
+            <img 
+              src={formData.photo} 
+              alt="Profile" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              crossOrigin="anonymous"
+            />
           ) : (
-            <User className="w-10 h-10" style={{ color: config.accentColor }} />
+            <User style={{ width: sizes.iconSize, height: sizes.iconSize, color: config.accentColor }} />
           )}
         </div>
       );
@@ -305,12 +343,16 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
       if (config.dividerStyle === 'none') return null;
       if (config.dividerStyle === 'dots') {
         return (
-          <div className="flex justify-center gap-1 my-4">
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', margin: '16px 0' }}>
             {[1, 2, 3].map(i => (
               <div 
                 key={i} 
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ backgroundColor: config.accentColor }}
+                style={{ 
+                  width: '6px', 
+                  height: '6px', 
+                  borderRadius: '50%',
+                  backgroundColor: config.accentColor,
+                }}
               />
             ))}
           </div>
@@ -318,98 +360,113 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
       }
       return (
         <div 
-          className="my-4 h-px"
-          style={{ backgroundColor: `${config.accentColor}30` }}
+          style={{ 
+            margin: '16px 0', 
+            height: '1px',
+            backgroundColor: `${config.accentColor}30`,
+          }}
         />
       );
+    };
+
+    const containerStyle: React.CSSProperties = {
+      width: forPdf ? '210mm' : '100%',
+      maxWidth: forPdf ? undefined : '210mm',
+      minHeight: forPdf ? '297mm' : undefined,
+      aspectRatio: forPdf ? undefined : '210/297',
+      margin: '0 auto',
+      fontFamily: config.fontStyle === 'serif' ? 'Playfair Display, serif' : 'Outfit, sans-serif',
+      backgroundColor,
+      boxShadow: forPdf ? undefined : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+      WebkitFontSmoothing: 'antialiased',
+      MozOsxFontSmoothing: 'grayscale',
     };
 
     // Side-photo layout (Modern style)
     if (config.headerStyle === 'side-photo') {
       return (
-        <div
-          ref={ref}
-          className="w-full max-w-[210mm] mx-auto shadow-lg"
-          style={{ 
-            aspectRatio: '210/297',
-            fontFamily: config.fontStyle === 'serif' ? 'Playfair Display, serif' : 'Outfit, sans-serif',
-            backgroundColor,
-          }}
-        >
-          <div className="h-full flex">
+        <div ref={ref} data-pdf-content style={containerStyle}>
+          <div style={{ height: '100%', display: 'flex' }}>
             {/* Left sidebar with photo */}
             <div 
-              className="w-1/3 p-6 flex flex-col items-center"
-              style={{ backgroundColor: `${config.accentColor}08` }}
+              style={{ 
+                width: '33.33%', 
+                padding: sizes.padding.lg,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                backgroundColor: `${config.accentColor}08`,
+              }}
             >
               <PhotoComponent />
               <h2 
-                className="mt-4 text-lg font-bold text-center"
-                style={{ color: config.accentColor }}
+                style={{ 
+                  marginTop: '16px',
+                  fontSize: sizes.text.xl,
+                  fontWeight: 700,
+                  textAlign: 'center',
+                  color: config.accentColor,
+                }}
               >
                 {formData.fullName || 'Your Name'}
               </h2>
               {location && (
-                <p className="text-xs text-gray-500 text-center mt-1">{location}</p>
+                <p style={{ fontSize: sizes.text.xs, color: '#6B7280', textAlign: 'center', marginTop: '4px' }}>
+                  {location}
+                </p>
               )}
               
               <Divider />
               
               {/* Contact */}
-              <div className="w-full mt-auto">
+              <div style={{ width: '100%', marginTop: 'auto' }}>
                 <SectionTitle>{t.contact}</SectionTitle>
-                <p className="text-xs text-gray-600 text-center">
+                <p style={{ fontSize: sizes.text.xs, color: '#4B5563', textAlign: 'center' }}>
                   {formData.contactLabel || 'Contact details available on request'}
                 </p>
               </div>
             </div>
             
             {/* Right content */}
-            <div className="w-2/3 p-6 space-y-4">
+            <div style={{ width: '66.67%', padding: sizes.padding.lg }}>
               {/* Personal Details */}
-              <div>
+              <div style={{ marginBottom: '16px' }}>
                 <SectionTitle>{t.personalDetails}</SectionTitle>
-                <div className="grid grid-cols-1 gap-0">
-                  <InfoRow label={t.dateOfBirth} value={formData.dateOfBirth} />
-                  <InfoRow label={t.age} value={formData.age} />
-                  <InfoRow label={t.height} value={formData.height} />
-                  <InfoRow label={t.complexion} value={formData.complexion} />
-                  <InfoRow label={t.maritalStatus} value={formData.maritalStatus} />
-                  <InfoRow label={t.religion} value={formData.religion} />
-                  <InfoRow label={t.caste} value={formData.caste} />
-                  <InfoRow label={t.motherTongue} value={formData.motherTongue} />
-                </div>
+                <InfoRow label={t.dateOfBirth} value={formData.dateOfBirth} />
+                <InfoRow label={t.age} value={formData.age} />
+                <InfoRow label={t.height} value={formData.height} />
+                <InfoRow label={t.complexion} value={formData.complexion} />
+                <InfoRow label={t.maritalStatus} value={formData.maritalStatus} />
+                <InfoRow label={t.religion} value={formData.religion} />
+                <InfoRow label={t.caste} value={formData.caste} />
+                <InfoRow label={t.motherTongue} value={formData.motherTongue} />
               </div>
               
               {/* Education */}
-              <div>
+              <div style={{ marginBottom: '16px' }}>
                 <SectionTitle>{t.education}</SectionTitle>
-                <div className="grid grid-cols-1 gap-0">
-                  <InfoRow label={t.highestEducation} value={formData.education} />
-                  <InfoRow label={t.occupation} value={formData.occupation} />
-                  <InfoRow label={t.company} value={formData.companyName} />
-                  <InfoRow label={t.income} value={formData.annualIncome} />
-                </div>
+                <InfoRow label={t.highestEducation} value={formData.education} />
+                <InfoRow label={t.occupation} value={formData.occupation} />
+                <InfoRow label={t.company} value={formData.companyName} />
+                <InfoRow label={t.income} value={formData.annualIncome} />
               </div>
               
               {/* Family */}
-              <div>
+              <div style={{ marginBottom: '16px' }}>
                 <SectionTitle>{t.family}</SectionTitle>
-                <div className="grid grid-cols-1 gap-0">
-                  <InfoRow label={t.fatherName} value={formData.fatherName} />
-                  <InfoRow label={t.fatherOccupation} value={formData.fatherOccupation} />
-                  <InfoRow label={t.motherName} value={formData.motherName} />
-                  <InfoRow label={t.motherOccupation} value={formData.motherOccupation} />
-                  <InfoRow label={t.siblings} value={formData.siblings} />
-                  <InfoRow label={t.familyType} value={formData.familyType} />
-                </div>
+                <InfoRow label={t.fatherName} value={formData.fatherName} />
+                <InfoRow label={t.fatherOccupation} value={formData.fatherOccupation} />
+                <InfoRow label={t.motherName} value={formData.motherName} />
+                <InfoRow label={t.motherOccupation} value={formData.motherOccupation} />
+                <InfoRow label={t.siblings} value={formData.siblings} />
+                <InfoRow label={t.familyType} value={formData.familyType} />
               </div>
               
               {/* About Me */}
               {formData.aboutMe && (
                 <div>
                   <SectionTitle>{t.aboutMe}</SectionTitle>
-                  <p className="text-xs text-gray-600 leading-relaxed">
+                  <p style={{ fontSize: sizes.text.sm, color: '#4B5563', lineHeight: '1.6' }}>
                     {formData.aboutMe}
                   </p>
                 </div>
@@ -422,56 +479,70 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
 
     // Centered or left-aligned layout
     return (
-      <div
-        ref={ref}
-        className="w-full max-w-[210mm] mx-auto shadow-lg"
-        style={{ 
-          aspectRatio: '210/297',
-          fontFamily: config.fontStyle === 'serif' ? 'Playfair Display, serif' : 'Outfit, sans-serif',
-          backgroundColor,
-        }}
-      >
-        <div className="h-full p-8 flex flex-col">
+      <div ref={ref} data-pdf-content style={containerStyle}>
+        <div style={{ height: '100%', padding: sizes.padding.lg, display: 'flex', flexDirection: 'column' }}>
           {/* Header */}
-          <div className={`mb-6 ${config.headerStyle === 'centered' ? 'text-center' : 'flex items-start gap-6'}`}>
+          <div style={{ 
+            marginBottom: '24px',
+            textAlign: config.headerStyle === 'centered' ? 'center' : undefined,
+            display: config.headerStyle === 'left-aligned' ? 'flex' : undefined,
+            alignItems: config.headerStyle === 'left-aligned' ? 'flex-start' : undefined,
+            gap: config.headerStyle === 'left-aligned' ? '24px' : undefined,
+          }}>
             {config.headerStyle === 'centered' ? (
               <>
-                <div className="flex justify-center mb-4">
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
                   <PhotoComponent />
                 </div>
                 <p 
-                  className="text-xs uppercase tracking-widest mb-1"
-                  style={{ color: config.accentColor }}
+                  style={{ 
+                    fontSize: sizes.text.xs,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.15em',
+                    marginBottom: '4px',
+                    color: config.accentColor,
+                  }}
                 >
                   {t.biodata}
                 </p>
                 <h1 
-                  className="text-2xl font-bold"
-                  style={{ color: config.accentColor }}
+                  style={{ 
+                    fontSize: sizes.text['2xl'],
+                    fontWeight: 700,
+                    color: config.accentColor,
+                  }}
                 >
                   {formData.fullName || 'Your Name'}
                 </h1>
                 {location && (
-                  <p className="text-sm text-gray-500 mt-1">{location}</p>
+                  <p style={{ fontSize: sizes.text.sm, color: '#6B7280', marginTop: '4px' }}>{location}</p>
                 )}
               </>
             ) : (
               <>
-                <div className="flex-1">
+                <div style={{ flex: 1 }}>
                   <p 
-                    className="text-xs uppercase tracking-widest mb-1"
-                    style={{ color: config.accentColor }}
+                    style={{ 
+                      fontSize: sizes.text.xs,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.15em',
+                      marginBottom: '4px',
+                      color: config.accentColor,
+                    }}
                   >
                     {t.biodata}
                   </p>
                   <h1 
-                    className="text-2xl font-bold"
-                    style={{ color: config.accentColor }}
+                    style={{ 
+                      fontSize: sizes.text['2xl'],
+                      fontWeight: 700,
+                      color: config.accentColor,
+                    }}
                   >
                     {formData.fullName || 'Your Name'}
                   </h1>
                   {location && (
-                    <p className="text-sm text-gray-500 mt-1">{location}</p>
+                    <p style={{ fontSize: sizes.text.sm, color: '#6B7280', marginTop: '4px' }}>{location}</p>
                   )}
                 </div>
                 <PhotoComponent />
@@ -482,57 +553,51 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
           <Divider />
 
           {/* Content - Two columns */}
-          <div className="flex-1 grid grid-cols-2 gap-x-8 gap-y-4 overflow-hidden">
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
             {/* Left Column */}
-            <div className="space-y-4">
+            <div>
               {/* Personal Details */}
-              <div>
+              <div style={{ marginBottom: '16px' }}>
                 <SectionTitle>{t.personalDetails}</SectionTitle>
-                <div className="space-y-0">
-                  <InfoRow label={t.dateOfBirth} value={formData.dateOfBirth} />
-                  <InfoRow label={t.age} value={formData.age} />
-                  <InfoRow label={t.height} value={formData.height} />
-                  <InfoRow label={t.complexion} value={formData.complexion} />
-                  <InfoRow label={t.maritalStatus} value={formData.maritalStatus} />
-                  <InfoRow label={t.religion} value={formData.religion} />
-                  <InfoRow label={t.caste} value={formData.caste} />
-                  <InfoRow label={t.motherTongue} value={formData.motherTongue} />
-                </div>
+                <InfoRow label={t.dateOfBirth} value={formData.dateOfBirth} />
+                <InfoRow label={t.age} value={formData.age} />
+                <InfoRow label={t.height} value={formData.height} />
+                <InfoRow label={t.complexion} value={formData.complexion} />
+                <InfoRow label={t.maritalStatus} value={formData.maritalStatus} />
+                <InfoRow label={t.religion} value={formData.religion} />
+                <InfoRow label={t.caste} value={formData.caste} />
+                <InfoRow label={t.motherTongue} value={formData.motherTongue} />
               </div>
 
               {/* Education */}
               <div>
                 <SectionTitle>{t.education}</SectionTitle>
-                <div className="space-y-0">
-                  <InfoRow label={t.highestEducation} value={formData.education} />
-                  <InfoRow label={t.occupation} value={formData.occupation} />
-                  <InfoRow label={t.company} value={formData.companyName} />
-                  <InfoRow label={t.income} value={formData.annualIncome} />
-                </div>
+                <InfoRow label={t.highestEducation} value={formData.education} />
+                <InfoRow label={t.occupation} value={formData.occupation} />
+                <InfoRow label={t.company} value={formData.companyName} />
+                <InfoRow label={t.income} value={formData.annualIncome} />
               </div>
             </div>
 
             {/* Right Column */}
-            <div className="space-y-4">
+            <div>
               {/* Family */}
-              <div>
+              <div style={{ marginBottom: '16px' }}>
                 <SectionTitle>{t.family}</SectionTitle>
-                <div className="space-y-0">
-                  <InfoRow label={t.fatherName} value={formData.fatherName} />
-                  <InfoRow label={t.fatherOccupation} value={formData.fatherOccupation} />
-                  <InfoRow label={t.motherName} value={formData.motherName} />
-                  <InfoRow label={t.motherOccupation} value={formData.motherOccupation} />
-                  <InfoRow label={t.siblings} value={formData.siblings} />
-                  <InfoRow label={t.familyType} value={formData.familyType} />
-                </div>
+                <InfoRow label={t.fatherName} value={formData.fatherName} />
+                <InfoRow label={t.fatherOccupation} value={formData.fatherOccupation} />
+                <InfoRow label={t.motherName} value={formData.motherName} />
+                <InfoRow label={t.motherOccupation} value={formData.motherOccupation} />
+                <InfoRow label={t.siblings} value={formData.siblings} />
+                <InfoRow label={t.familyType} value={formData.familyType} />
               </div>
 
               {/* About Me */}
               {(formData.aboutMe || formData.hobbies) && (
-                <div>
+                <div style={{ marginBottom: '16px' }}>
                   <SectionTitle>{t.aboutMe}</SectionTitle>
                   {formData.aboutMe && (
-                    <p className="text-xs text-gray-600 mb-2 leading-relaxed line-clamp-4">
+                    <p style={{ fontSize: sizes.text.xs, color: '#4B5563', marginBottom: '8px', lineHeight: '1.6' }}>
                       {formData.aboutMe}
                     </p>
                   )}
@@ -546,7 +611,7 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
               {formData.partnerPreferences && (
                 <div>
                   <SectionTitle>{t.preferences}</SectionTitle>
-                  <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">
+                  <p style={{ fontSize: sizes.text.xs, color: '#4B5563', lineHeight: '1.6' }}>
                     {formData.partnerPreferences}
                   </p>
                 </div>
@@ -555,8 +620,8 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
           </div>
 
           {/* Footer */}
-          <div className="mt-6 pt-4 border-t border-gray-200">
-            <p className="text-xs text-center text-gray-500">
+          <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #E5E7EB' }}>
+            <p style={{ fontSize: sizes.text.xs, textAlign: 'center', color: '#6B7280' }}>
               {formData.contactLabel || 'Contact details available on request'}
             </p>
           </div>
