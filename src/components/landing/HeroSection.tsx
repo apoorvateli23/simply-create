@@ -368,7 +368,7 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               transition={{ duration: 2, repeat: Infinity }}
               className="text-5xl mb-6"
             >
-              💍
+              ✨
             </motion.div>
             <h2 className="font-display text-3xl md:text-4xl font-medium mb-4">
               Ready to create your biodata?
