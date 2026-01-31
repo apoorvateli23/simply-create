@@ -1,158 +1,255 @@
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Heart, Sparkles, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface HeroSectionProps {
   onGetStarted: () => void;
 }
 
+// Floating decorative elements
+const FloatingElement = ({ 
+  children, 
+  delay = 0, 
+  duration = 4,
+  className = "" 
+}: { 
+  children: React.ReactNode; 
+  delay?: number; 
+  duration?: number;
+  className?: string;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0 }}
+    animate={{ 
+      opacity: 1, 
+      scale: 1,
+      y: [0, -8, 0],
+    }}
+    transition={{
+      opacity: { duration: 0.5, delay },
+      scale: { duration: 0.5, delay },
+      y: { duration, repeat: Infinity, ease: "easeInOut", delay }
+    }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
+
 const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-hidden">
       {/* Navigation */}
-      <nav className="fixed top-6 right-6 z-50">
-        <div className="flex items-center gap-2 bg-card/80 backdrop-blur-md rounded-full px-2 py-2 border border-border shadow-soft">
-          <a href="#" className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
-            Home
-          </a>
-          <a href="#how-it-works" className="px-4 py-2 text-sm font-medium text-foreground/60 hover:text-foreground transition-colors">
-            How it works
-          </a>
-          <Button 
-            size="sm" 
-            onClick={onGetStarted}
-            className="rounded-full"
+      <motion.nav 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="fixed top-0 left-0 right-0 z-50 px-4 py-4"
+      >
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <motion.div 
+            className="flex items-center gap-2"
+            whileHover={{ scale: 1.02 }}
           >
-            Create Now
-          </Button>
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-glow">
+              <Heart className="w-5 h-5 text-primary-foreground fill-current" />
+            </div>
+            <span className="font-display text-xl font-semibold">SimplyCreate</span>
+          </motion.div>
+          
+          <div className="flex items-center gap-2 bg-card/80 backdrop-blur-md rounded-full px-2 py-2 border border-border shadow-soft">
+            <a href="#" className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors rounded-full hover:bg-secondary">
+              Home
+            </a>
+            <a href="#how-it-works" className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors rounded-full hover:bg-secondary">
+              How it works
+            </a>
+            <Button 
+              size="sm" 
+              onClick={onGetStarted}
+              className="rounded-full shadow-glow hover:shadow-lg transition-all"
+            >
+              Create Now
+            </Button>
+          </div>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Hero Content */}
-      <section className="relative min-h-screen flex flex-col justify-center px-6 md:px-12 lg:px-20">
-        {/* Subtle decorative element */}
-        <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] opacity-30 pointer-events-none">
-          <svg viewBox="0 0 200 200" className="w-full h-full text-primary/20">
-            <path
-              d="M100,10 Q150,50 190,100 Q150,150 100,190 Q50,150 10,100 Q50,50 100,10"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="0.5"
-            />
-            <path
-              d="M100,30 Q140,60 170,100 Q140,140 100,170 Q60,140 30,100 Q60,60 100,30"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="0.5"
-            />
-          </svg>
+      <section className="relative min-h-screen flex flex-col justify-center px-6 md:px-12 lg:px-20 pt-20">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <FloatingElement delay={0.2} duration={5} className="absolute top-[15%] right-[10%]">
+            <div className="w-20 h-20 rounded-full bg-primary/10" />
+          </FloatingElement>
+          <FloatingElement delay={0.5} duration={4} className="absolute top-[30%] right-[25%]">
+            <Sparkles className="w-8 h-8 text-primary/30" />
+          </FloatingElement>
+          <FloatingElement delay={0.8} duration={6} className="absolute bottom-[25%] right-[15%]">
+            <Star className="w-6 h-6 text-primary/25 fill-current" />
+          </FloatingElement>
+          <FloatingElement delay={1} duration={5} className="absolute top-[20%] left-[75%]">
+            <Heart className="w-5 h-5 text-primary/20 fill-current" />
+          </FloatingElement>
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-secondary/50 to-transparent" />
         </div>
 
-        <div className="max-w-3xl">
-          {/* Small badge */}
+        <div className="max-w-4xl relative z-10">
+          {/* Friendly badge */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="mb-8"
+            className="mb-6"
           >
-            <span className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
-              ✓ Free • No signup required
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-sm font-medium text-secondary-foreground border border-border">
+              <Sparkles className="w-4 h-4 text-primary" />
+              Free forever • No signup required
             </span>
           </motion.div>
 
-          {/* Main Headline */}
+          {/* Main Headline - More fun and friendly */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="font-display text-5xl md:text-6xl lg:text-7xl font-medium tracking-tight leading-[1.1] mb-6"
           >
-            Marriage biodata,
+            Create your perfect
             <br />
-            <span className="text-primary">reimagined</span>
+            <span className="relative">
+              <span className="text-primary">marriage biodata</span>
+              <motion.span
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="absolute -bottom-2 left-0 right-0 h-3 bg-primary/15 -z-10 rounded-full origin-left"
+              />
+            </span>
+            {' '}
+            <motion.span
+              initial={{ opacity: 0, rotate: -10 }}
+              animate={{ opacity: 1, rotate: 0 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+              className="inline-block"
+            >
+              ✨
+            </motion.span>
           </motion.h1>
 
-          {/* Subtitle */}
+          {/* Subtitle - Warmer tone */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed mb-10"
           >
-            Create a beautiful, professional biodata in minutes. 
-            Clean templates, simple process, instant download.
+            Beautiful templates, simple process, instant download. 
+            <br className="hidden md:block" />
+            Start your journey to finding your perfect match! 💕
           </motion.p>
 
-          {/* CTA */}
+          {/* CTA - More prominent and fun */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex items-center gap-6"
+            className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
           >
             <Button
               size="lg"
               onClick={onGetStarted}
-              className="group rounded-full px-8 h-14 text-base font-medium"
+              className="group rounded-full px-8 h-14 text-base font-medium shadow-glow hover:shadow-lg transition-all hover:-translate-y-0.5"
             >
-              Start creating
+              Start creating — it's free!
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
-            <span className="text-sm text-muted-foreground">
-              Ready in 3 minutes
-            </span>
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2">
+                {['🙂', '😊', '🥰'].map((emoji, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5 + i * 0.1 }}
+                    className="w-8 h-8 rounded-full bg-secondary border-2 border-background flex items-center justify-center text-sm"
+                  >
+                    {emoji}
+                  </motion.div>
+                ))}
+              </div>
+              <span className="text-sm text-muted-foreground">
+                Loved by <span className="font-medium text-foreground">1000+</span> users
+              </span>
+            </div>
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
+        {/* Scroll indicator - Fun bouncy animation */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
-          className="absolute bottom-12 left-6 md:left-12 lg:left-20"
+          transition={{ delay: 1.2, duration: 0.5 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-xs text-muted-foreground tracking-wider uppercase">Scroll</span>
-            <div className="w-px h-12 bg-border" />
-          </div>
+          <motion.div 
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            className="flex flex-col items-center gap-2 cursor-pointer group"
+            onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            <span className="text-xs text-muted-foreground group-hover:text-primary transition-colors">See how it works</span>
+            <div className="w-6 h-10 rounded-full border-2 border-border group-hover:border-primary transition-colors flex items-start justify-center p-1">
+              <motion.div 
+                animate={{ y: [0, 12, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                className="w-1.5 h-1.5 rounded-full bg-muted-foreground group-hover:bg-primary transition-colors"
+              />
+            </div>
+          </motion.div>
         </motion.div>
       </section>
 
       {/* How it Works Section */}
-      <section id="how-it-works" className="py-24 px-6 md:px-12 lg:px-20 border-t border-border">
+      <section id="how-it-works" className="py-24 px-6 md:px-12 lg:px-20 bg-secondary/30">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="mb-16"
+            className="text-center mb-16"
           >
-            <span className="text-xs font-medium tracking-widest uppercase text-muted-foreground mb-4 block">
-              How it works
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card text-sm font-medium text-muted-foreground border border-border mb-4">
+              <Star className="w-4 h-4 text-primary fill-current" />
+              Super simple
             </span>
-            <h2 className="font-display text-3xl md:text-4xl font-medium">
-              Three simple steps
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-medium">
+              Three easy steps to your
+              <br />
+              <span className="text-primary">beautiful biodata</span>
             </h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-12 md:gap-8">
+          <div className="grid md:grid-cols-3 gap-8">
             {[
               {
                 number: '01',
-                title: 'Enter your details',
-                description: 'Fill in your personal information using our intuitive form. Takes just a few minutes.',
+                emoji: '✍️',
+                title: 'Fill in your details',
+                description: 'Enter your personal information using our friendly, intuitive form.',
               },
               {
                 number: '02',
-                title: 'Pick a template',
-                description: 'Choose from traditional, modern, or minimalist designs that suit your style.',
+                emoji: '🎨',
+                title: 'Pick your style',
+                description: 'Choose from beautiful traditional, modern, or minimalist designs.',
               },
               {
                 number: '03',
-                title: 'Download PDF',
-                description: 'Get a high-quality, print-ready PDF instantly. Share it however you like.',
+                emoji: '📄',
+                title: 'Download & share',
+                description: 'Get a stunning, print-ready PDF instantly. Share it anywhere!',
               },
             ].map((step, index) => (
               <motion.div
@@ -161,12 +258,18 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group"
+                whileHover={{ y: -4 }}
+                className="relative bg-card rounded-2xl p-8 border border-border shadow-soft hover:shadow-medium transition-all group"
               >
-                <span className="text-5xl font-display font-medium text-primary/20 group-hover:text-primary/40 transition-colors">
-                  {step.number}
-                </span>
-                <h3 className="font-display text-xl font-medium mt-4 mb-3">
+                <div className="absolute -top-4 left-8">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold shadow-glow">
+                    {index + 1}
+                  </span>
+                </div>
+                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">
+                  {step.emoji}
+                </div>
+                <h3 className="font-display text-xl font-medium mb-3">
                   {step.title}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
@@ -179,30 +282,43 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 px-6 md:px-12 lg:px-20 bg-secondary/50">
+      <section className="py-24 px-6 md:px-12 lg:px-20">
         <div className="max-w-5xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-sm font-medium text-muted-foreground border border-border mb-4">
+                🔒 Your privacy matters
+              </span>
               <h2 className="font-display text-3xl md:text-4xl font-medium mb-6">
-                Privacy first.
+                100% private.
                 <br />
-                Always.
+                <span className="text-primary">Always.</span>
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-6">
                 Your data never leaves your browser. We don't store, share, or track 
-                your personal information. Create with confidence.
+                your personal information. Create with complete peace of mind.
               </p>
-              <ul className="space-y-3">
-                {['No account required', 'No data stored', 'No tracking'].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-sm">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    {item}
-                  </li>
+              <ul className="space-y-4">
+                {[
+                  { icon: '✓', text: 'No account required' },
+                  { icon: '✓', text: 'No data stored on servers' },
+                  { icon: '✓', text: 'No tracking or analytics' }
+                ].map((item) => (
+                  <motion.li 
+                    key={item.text} 
+                    className="flex items-center gap-3 text-sm"
+                    whileHover={{ x: 4 }}
+                  >
+                    <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                      {item.icon}
+                    </span>
+                    <span className="font-medium">{item.text}</span>
+                  </motion.li>
                 ))}
               </ul>
             </motion.div>
@@ -214,24 +330,32 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="relative"
             >
-              <div className="aspect-[4/3] rounded-2xl bg-card border border-border shadow-medium p-8 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
+              <div className="aspect-square rounded-3xl bg-gradient-to-br from-secondary via-card to-secondary border border-border shadow-medium p-8 flex items-center justify-center">
+                <motion.div 
+                  className="text-center"
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6 shadow-inner">
+                    <span className="text-5xl">🔐</span>
                   </div>
-                  <p className="font-display text-lg font-medium">100% Private</p>
-                  <p className="text-sm text-muted-foreground mt-1">Your data stays with you</p>
-                </div>
+                  <p className="font-display text-2xl font-medium">100% Private</p>
+                  <p className="text-muted-foreground mt-2">Your data stays with you</p>
+                </motion.div>
               </div>
+              {/* Decorative elements */}
+              <FloatingElement delay={0.3} duration={4} className="absolute -top-4 -right-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
+              </FloatingElement>
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-6 md:px-12 lg:px-20">
+      <section className="py-24 px-6 md:px-12 lg:px-20 bg-secondary/30">
         <div className="max-w-2xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -239,18 +363,27 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="font-display text-3xl md:text-4xl font-medium mb-6">
+            <motion.div
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="text-5xl mb-6"
+            >
+              💍
+            </motion.div>
+            <h2 className="font-display text-3xl md:text-4xl font-medium mb-4">
               Ready to create your biodata?
             </h2>
             <p className="text-muted-foreground mb-8">
               It's completely free. No signup. No hassle.
+              <br />
+              Just beautiful biodatas in minutes! ✨
             </p>
             <Button
               size="lg"
               onClick={onGetStarted}
-              className="group rounded-full px-10 h-14 text-base font-medium"
+              className="group rounded-full px-10 h-14 text-base font-medium shadow-glow hover:shadow-lg transition-all hover:-translate-y-0.5"
             >
-              Get started now
+              Get started now — free!
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
           </motion.div>
@@ -258,10 +391,17 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-6 md:px-12 lg:px-20 border-t border-border">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>© 2025 Biodata Creator</span>
-          <span>Made with care</span>
+      <footer className="py-8 px-6 md:px-12 lg:px-20 border-t border-border bg-card">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <Heart className="w-4 h-4 text-primary-foreground fill-current" />
+            </div>
+            <span className="font-display text-lg font-medium">SimplyCreate</span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            © 2025 SimplyCreate. Made with 💕 for your special journey.
+          </p>
         </div>
       </footer>
     </div>

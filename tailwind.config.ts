@@ -62,6 +62,10 @@ export default {
         ivory: "hsl(var(--ivory))",
         cream: "hsl(var(--cream))",
         terracotta: "hsl(var(--terracotta))",
+        peach: "hsl(var(--peach))",
+        mint: "hsl(var(--mint))",
+        lavender: "hsl(var(--lavender))",
+        coral: "hsl(var(--coral))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
