@@ -13,8 +13,8 @@
 
 @layer base {
   :root {
-    /* Clean, universally appealing aesthetic */
-    --background: 210 20% 98%;
+    /* Clean, universally appealing aesthetic with warm background */
+    --background: 45 30% 97%;
     --foreground: 220 20% 15%;
 
     --card: 0 0% 100%;
