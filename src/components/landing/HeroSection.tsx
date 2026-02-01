@@ -87,7 +87,7 @@ const HeroSection = ({
             <div className="w-20 h-20 rounded-full bg-primary/10" />
           </FloatingElement>
           <FloatingElement delay={0.5} duration={4} className="absolute top-[30%] right-[25%]">
-            <Sparkles className="w-8 h-8 text-primary/30" />
+            <div className="w-6 h-6 rounded-full bg-primary/20" />
           </FloatingElement>
           <FloatingElement delay={0.8} duration={6} className="absolute bottom-[25%] right-[15%]">
             <Star className="w-6 h-6 text-primary/25 fill-current" />
@@ -373,7 +373,7 @@ const HeroSection = ({
               {/* Decorative elements */}
               <FloatingElement delay={0.3} duration={4} className="absolute -top-4 -right-4">
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-primary" />
+                  <Star className="w-5 h-5 text-primary fill-current" />
                 </div>
               </FloatingElement>
             </motion.div>
@@ -396,12 +396,13 @@ const HeroSection = ({
           duration: 0.5
         }}>
             <motion.div animate={{
-            rotate: [0, 5, -5, 0]
+            scale: [1, 1.1, 1]
           }} transition={{
             duration: 2,
-            repeat: Infinity
+            repeat: Infinity,
+            ease: "easeInOut"
           }} className="text-5xl mb-6">
-              ✨
+              💫
             </motion.div>
             <h2 className="font-display text-3xl md:text-4xl font-medium mb-4">
               Ready to create your biodata?
@@ -409,7 +410,7 @@ const HeroSection = ({
             <p className="text-muted-foreground mb-8">
               It's completely free. No signup. No hassle.
               <br />
-              Just beautiful biodatas in minutes! ✨
+              Just beautiful biodatas in minutes!
             </p>
             <Button size="lg" onClick={onGetStarted} className="group rounded-full px-10 h-14 text-base font-medium shadow-glow hover:shadow-lg transition-all hover:-translate-y-0.5">
               Get started now — free!
