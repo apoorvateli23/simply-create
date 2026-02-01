@@ -189,33 +189,34 @@ const HeroSection = ({
           </motion.div>
         </div>
 
-        {/* Scroll indicator - Fun bouncy animation */}
+        {/* Scroll indicator - subtle corner placement */}
         <motion.div initial={{
         opacity: 0
       }} animate={{
+        opacity: 0.5
+      }} whileHover={{
         opacity: 1
       }} transition={{
         delay: 1.2,
         duration: 0.5
-      }} className="absolute bottom-8 left-1/2 -translate-x-1/2">
+      }} className="absolute bottom-6 right-6">
           <motion.div animate={{
-          y: [0, 6, 0]
+          y: [0, 4, 0]
         }} transition={{
-          duration: 1.5,
+          duration: 2,
           repeat: Infinity,
           ease: "easeInOut"
-        }} className="flex flex-col items-center gap-2 cursor-pointer group" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({
+        }} className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({
           behavior: 'smooth'
         })}>
-            <span className="text-xs text-muted-foreground group-hover:text-primary transition-colors">See how it works</span>
-            <div className="w-6 h-10 rounded-full border-2 border-border group-hover:border-primary transition-colors flex items-start justify-center p-1">
+            <div className="w-5 h-8 rounded-full border border-border/60 group-hover:border-primary/60 transition-colors flex items-start justify-center p-1">
               <motion.div animate={{
-              y: [0, 12, 0]
+              y: [0, 10, 0]
             }} transition={{
-              duration: 1.5,
+              duration: 2,
               repeat: Infinity,
               ease: "easeInOut"
-            }} className="w-1.5 h-1.5 rounded-full bg-muted-foreground group-hover:bg-primary transition-colors" />
+            }} className="w-1 h-1 rounded-full bg-muted-foreground/60 group-hover:bg-primary transition-colors" />
             </div>
           </motion.div>
         </motion.div>
