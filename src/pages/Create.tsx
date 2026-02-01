@@ -275,8 +275,23 @@ const Create = () => {
                 </h3>
               </div>
 
-              <div className="rounded-xl border border-border bg-card overflow-hidden shadow-soft">
-                <div className="transform scale-[0.55] origin-top-left w-[181.82%] -mb-[45%]">
+              <div 
+                className="rounded-xl border border-border bg-card shadow-soft overflow-hidden"
+                style={{ 
+                  position: 'relative',
+                  paddingBottom: 'calc(297 / 210 * 55%)', // A4 aspect ratio scaled to 55%
+                }}
+              >
+                <div 
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    transform: 'scale(0.55)',
+                    transformOrigin: 'top left',
+                    width: 'calc(100% / 0.55)',
+                  }}
+                >
                   <BiodataPreview
                     formData={formData}
                     templateId={selectedTemplate}
