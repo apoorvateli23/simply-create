@@ -220,14 +220,14 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
             transition={{ duration: 0.5 }}
             className="text-center mb-16"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card text-sm font-medium text-muted-foreground border border-border mb-4">
-              <Star className="w-4 h-4 text-primary fill-current" />
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-light text-sm font-medium text-gold border border-gold/20 mb-4">
+              <Star className="w-4 h-4 text-gold fill-current" />
               Super simple
             </span>
             <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-medium">
               Three easy steps to your
               <br />
-              <span className="text-primary">beautiful biodata</span>
+              <span className="text-sage">beautiful biodata</span>
             </h2>
           </motion.div>
 
@@ -238,18 +238,27 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
                 emoji: '✍️',
                 title: 'Fill in your details',
                 description: 'Enter your personal information using our friendly, intuitive form.',
+                color: 'teal',
+                bgClass: 'bg-teal',
+                lightBgClass: 'bg-teal-light',
               },
               {
                 number: '02',
                 emoji: '🎨',
                 title: 'Pick your style',
                 description: 'Choose from beautiful traditional, modern, or minimalist designs.',
+                color: 'gold',
+                bgClass: 'bg-gold',
+                lightBgClass: 'bg-gold-light',
               },
               {
                 number: '03',
                 emoji: '📄',
                 title: 'Download & share',
                 description: 'Get a stunning, print-ready PDF instantly. Share it anywhere!',
+                color: 'sage',
+                bgClass: 'bg-sage',
+                lightBgClass: 'bg-sage-light',
               },
             ].map((step, index) => (
               <motion.div
@@ -262,14 +271,14 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
                 className="relative bg-card rounded-2xl p-8 border border-border shadow-soft hover:shadow-medium transition-all group"
               >
                 <div className="absolute -top-4 left-8">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold shadow-glow">
+                  <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${step.bgClass} text-white text-sm font-bold shadow-md`}>
                     {index + 1}
                   </span>
                 </div>
-                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">
-                  {step.emoji}
+                <div className={`w-14 h-14 rounded-xl ${step.lightBgClass} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <span className="text-2xl">{step.emoji}</span>
                 </div>
-                <h3 className="font-display text-xl font-medium mb-3">
+                <h3 className={`font-display text-xl font-medium mb-3 text-${step.color}`}>
                   {step.title}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
@@ -291,13 +300,13 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-sm font-medium text-muted-foreground border border-border mb-4">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-burgundy-light text-sm font-medium text-burgundy border border-burgundy/20 mb-4">
                 🔒 Your privacy matters
               </span>
               <h2 className="font-display text-3xl md:text-4xl font-medium mb-6">
                 100% private.
                 <br />
-                <span className="text-primary">Always.</span>
+                <span className="text-burgundy">Always.</span>
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-6">
                 Your data never leaves your browser. We don't store, share, or track 
@@ -305,16 +314,16 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
               </p>
               <ul className="space-y-4">
                 {[
-                  { icon: '✓', text: 'No account required' },
-                  { icon: '✓', text: 'No data stored on servers' },
-                  { icon: '✓', text: 'No tracking or analytics' }
+                  { icon: '✓', text: 'No account required', colorClass: 'bg-teal-light text-teal' },
+                  { icon: '✓', text: 'No data stored on servers', colorClass: 'bg-sage-light text-sage' },
+                  { icon: '✓', text: 'No tracking or analytics', colorClass: 'bg-gold-light text-gold' }
                 ].map((item) => (
                   <motion.li 
                     key={item.text} 
                     className="flex items-center gap-3 text-sm"
                     whileHover={{ x: 4 }}
                   >
-                    <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                    <span className={`w-6 h-6 rounded-full ${item.colorClass} flex items-center justify-center text-xs font-bold`}>
                       {item.icon}
                     </span>
                     <span className="font-medium">{item.text}</span>
