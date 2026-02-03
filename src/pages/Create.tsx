@@ -284,6 +284,8 @@ const Create = () => {
                   style={{
                     transform: 'scale(0.55)',
                     width: 'calc(100% / 0.55)',
+                    height: 'calc(100% / 0.55)',
+                    maxHeight: 'calc(100% / 0.55)',
                   }}
                 >
                   <BiodataPreview
