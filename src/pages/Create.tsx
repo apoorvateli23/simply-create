@@ -276,8 +276,11 @@ const Create = () => {
               </div>
 
               <div 
-                className="rounded-xl border border-border bg-card shadow-soft overflow-hidden"
-                style={{ aspectRatio: '210/297' }}
+                className="rounded-xl border border-border bg-card shadow-soft"
+                style={{ 
+                  aspectRatio: '210/297',
+                  overflow: 'hidden',
+                }}
               >
                 <div 
                   className="origin-top-left"
@@ -285,7 +288,7 @@ const Create = () => {
                     transform: 'scale(0.55)',
                     width: 'calc(100% / 0.55)',
                     height: 'calc(100% / 0.55)',
-                    maxHeight: 'calc(100% / 0.55)',
+                    overflow: 'hidden',
                   }}
                 >
                   <BiodataPreview

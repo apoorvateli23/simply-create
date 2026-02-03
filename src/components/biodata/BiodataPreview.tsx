@@ -372,8 +372,9 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
     const containerStyle: React.CSSProperties = {
       width: forPdf ? '210mm' : '100%',
       maxWidth: forPdf ? undefined : '210mm',
-      height: forPdf ? '297mm' : undefined,
-      aspectRatio: forPdf ? undefined : '210/297',
+      height: forPdf ? '297mm' : 'auto',
+      aspectRatio: '210/297',
+      maxHeight: forPdf ? '297mm' : undefined,
       margin: '0 auto',
       fontFamily: config.fontStyle === 'serif' ? 'Playfair Display, serif' : 'Outfit, sans-serif',
       backgroundColor,
