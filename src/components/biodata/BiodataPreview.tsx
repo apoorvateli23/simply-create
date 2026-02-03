@@ -372,7 +372,7 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
     const containerStyle: React.CSSProperties = {
       width: forPdf ? '210mm' : '100%',
       maxWidth: forPdf ? undefined : '210mm',
-      minHeight: forPdf ? '297mm' : undefined,
+      height: forPdf ? '297mm' : undefined,
       aspectRatio: forPdf ? undefined : '210/297',
       margin: '0 auto',
       fontFamily: config.fontStyle === 'serif' ? 'Playfair Display, serif' : 'Outfit, sans-serif',
@@ -380,6 +380,7 @@ const BiodataPreview = forwardRef<HTMLDivElement, BiodataPreviewProps>(
       boxShadow: forPdf ? undefined : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
       WebkitFontSmoothing: 'antialiased',
       MozOsxFontSmoothing: 'grayscale',
+      overflow: 'hidden',
     };
 
     // Side-photo layout (Modern style)
